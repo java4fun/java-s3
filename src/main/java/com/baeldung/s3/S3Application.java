@@ -18,16 +18,21 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+// Example URL:  https://www.baeldung.com/aws-s3-java
 public class S3Application {
 
     private static final AWSCredentials credentials;
     private static String bucketName;
 
     static {
+
+        String keyId = System.getenv("AWS_KEY_ID");
+        String accessSecret = System.getenv("AWS_ACCESS_SECRET");
+
         //put your accesskey and secretkey here
         credentials = new BasicAWSCredentials(
-                "<AWS accesskey>",
-                "<AWS secretkey>"
+                keyId,
+                accessSecret
         );
     }
 
@@ -36,20 +41,22 @@ public class S3Application {
         AmazonS3 s3client = AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.US_EAST_2)
+                .withRegion(Regions.US_WEST_2)
                 .build();
 
         AWSS3Service awsService = new AWSS3Service(s3client);
 
-        bucketName = "baeldung-bucket";
+        bucketName = "yyin-cs8-bucket";
 
         //creating a bucket
-        if(awsService.doesBucketExist(bucketName)) {
-            System.out.println("Bucket name is not available."
-                    + " Try again with a different Bucket name.");
-            return;
-        }
-        awsService.createBucket(bucketName);
+//        if(awsService.doesBucketExist(bucketName)) {
+//            System.out.println("Bucket name is not available."
+//                    + " Try again with a different Bucket name.");
+//            return;
+//        }
+
+
+//        awsService.createBucket(bucketName);
 
         //list all the buckets
         for(Bucket s : awsService.listBuckets() ) {
@@ -57,13 +64,13 @@ public class S3Application {
         }
 
         //deleting bucket
-        awsService.deleteBucket("baeldung-bucket-test2");
+//        awsService.deleteBucket("baeldung-bucket-test2");
 
         //uploading object
         awsService.putObject(
                 bucketName,
                 "Document/hello.txt",
-                new File("/Users/user/Document/hello.txt")
+                new File("./Document/hello.txt")
         );
 
         //listing objects
@@ -75,8 +82,9 @@ public class S3Application {
         //downloading an object
         S3Object s3object = awsService.getObject(bucketName, "Document/hello.txt");
         S3ObjectInputStream inputStream = s3object.getObjectContent();
-        FileUtils.copyInputStreamToFile(inputStream, new File("/Users/user/Desktop/hello.txt"));
+        FileUtils.copyInputStreamToFile(inputStream, new File("./out/hello.txt"));
 
+/*
         //copying an object
         awsService.copyObject(
                 "baeldung-bucket",
@@ -97,5 +105,7 @@ public class S3Application {
         DeleteObjectsRequest delObjReq = new DeleteObjectsRequest("baeldung-bucket")
                 .withKeys(objkeyArr);
         awsService.deleteObjects(delObjReq);
+
+ */
     }
 }
